@@ -33,15 +33,16 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     override func viewWillAppear(_ animated: Bool) {
 
+    //To delete the core data entity values uncomment the below function
+        //self.deleteAllRecords()
+        
         locationManager.delegate = self
         locationManager.requestAlwaysAuthorization()
         mapview.isMyLocationEnabled = true
         mapview.settings.myLocationButton = true
         locationManager.startUpdatingLocation()
-        print("Location update")
         mapview.delegate=self
         mapview.settings.allowScrollGesturesDuringRotateOrZoom = false
-        print("Location is:\(locationManager.location)")
         if locationManager.location != nil && self.location.count < 0
         {
             let camera = GMSCameraPosition.camera(withLatitude: locationManager.location!.coordinate.latitude, longitude: locationManager.location!.coordinate.longitude, zoom: 10)
@@ -69,9 +70,9 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
                     
                     let camera = GMSCameraPosition.camera(withLatitude: Double(loc.value(forKey: "latitude") as! NSNumber), longitude: Double(loc.value(forKey: "longitude") as! NSNumber), zoom: 10)
                     self.mapview.camera = camera
-                    if self.address != nil
+                    if loc.value(forKey: "address") != nil
                     {
-                        marker.title = "\(address!)"
+                        marker.title = "\(loc.value(forKey: "address")!)"
                     }
                     marker.map = self.mapview
                 }
@@ -83,7 +84,24 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
         
         
     }
-
+    func deleteAllRecords() {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        let context = appDelegate.persistentContainer.viewContext
+        
+        let deleteFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "Location")
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: deleteFetch)
+        
+        do {
+            try context.execute(deleteRequest)
+            try context.save()
+        } catch {
+            print ("There was an error")
+        }
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -204,6 +222,7 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
         let locationCore = NSManagedObject(entity: entity!, insertInto: managedContext)
         locationCore.setValue(self.latitude, forKey: "latitude")
         locationCore.setValue(self.longitude, forKey: "longitude")
+        locationCore.setValue(self.address, forKey: "address")
         var found:Bool = true
         do
         {
