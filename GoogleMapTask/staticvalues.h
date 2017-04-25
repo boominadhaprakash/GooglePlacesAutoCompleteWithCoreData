@@ -9,6 +9,6 @@
 #ifndef staticvalues_h
 #define staticvalues_h
 
-#define googleapikey "AIzaSyDmjlrs7DDBi-YajVLPCKboU54bjdIMNAA"
+#define googleapikey "Your_Google_API_KEY"
 
 #endif /* staticvalues_h */
